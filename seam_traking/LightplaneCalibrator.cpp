@@ -8,27 +8,30 @@ LightplaneCalibrator::LightplaneCalibrator(Camera * cam,
 {
 }
 
-int LightplaneCalibrator::AddRefPose(std::vector<cv::Mat>& src_ref,
-    bool is_board_reverse) {
+std::vector<int> LightplaneCalibrator::AddRefPose(
+    std::vector<cv::Mat>& src_ref, bool is_board_reverse) {
 
   cv::Mat pose;
+  std::vector<int> error_images;
   for (int i = 0; i < src_ref.size(); ++i) {
     pose = cam_->FindChessboardPose(src_ref[i], board_size_, square_size_);
     if (abs(pose.at<double>(3, 3) - 1) < 0.00001) {
       ref_pose_.push_back(pose);
-    }
-    else {
-      std::cout << "cannot recognize ref image( " << i << " )" << std::endl;
+    } else {
+      error_images.push_back(i + 1);
     }
   }
-  return ref_pose_.size();
+  return error_images;
 }
 
-int LightplaneCalibrator::AddLightImage(std::vector<cv::Mat>& src_light)
+std::vector<int> LightplaneCalibrator::AddLightImage(
+    std::vector<cv::Mat>& src_light)
+
 {
   std::ifstream in;
   int u, v, num, last_num;
   std::vector<cv::Point2f> image_point;
+  std::vector<int> return_value;
   in.open("point_cloud.txt");
   last_num = num = 1;
   while (in.good()) {
@@ -44,7 +47,7 @@ int LightplaneCalibrator::AddLightImage(std::vector<cv::Mat>& src_light)
     }
   }
   image_points_.push_back(image_point);
-  return 0;
+  return return_value;
 }
 
 double LightplaneCalibrator::Calibrate() {
@@ -55,9 +58,6 @@ double LightplaneCalibrator::Calibrate() {
   for (int i = 0; i < light_point_cloud_.size(); i++) {
     pcloud.row(i) = light_point_cloud_[i].t();
   }
-  //std::cout << pcloud_1.channels() << std::endl;
-  //pcloud_1 = pcloud.clone();
-  //std::cout << pcloud_1.channels() << std::endl;
 
   x_ave = mean(pcloud.col(0))(0);
   y_ave = mean(pcloud.col(1))(0);
@@ -68,9 +68,6 @@ double LightplaneCalibrator::Calibrate() {
 
   cv::Mat w, u, vt;
   cv::SVD::compute(pcloud, w, u, vt);
-  //std::cout << w << std::endl;
-  //std::cout << u << std::endl;
-  std::cout << vt << std::endl;
   vt.row(2).copyTo(light_plane_wcs.colRange(0, 3));
   light_plane_wcs.at<double>(0, 3) = -
     light_plane_wcs.at<double>(0, 0) * x_ave -
@@ -78,9 +75,6 @@ double LightplaneCalibrator::Calibrate() {
     light_plane_wcs.at<double>(0, 2) * z_ave;
 
   cam_->light_plane_ = light_plane_wcs * ref_pose_[0].inv();
-  std::cout << cam_->light_plane_ << std::endl;
-  //light_plane_wcs = A.inv(2) * b;
-  //std::cout << light_plane_wcs << std::endl;
   return 0.0;
 }
 
@@ -129,8 +123,7 @@ cv::Mat LightplaneCalibrator::Image2World(cv::Point2f & img_point,
   return result_wcs;
 }
 
-cv::Mat LightplaneCalibrator::Ref_n2Ref_m(int n, int m,
-    cv::Mat& point_in_n) {
+cv::Mat LightplaneCalibrator::Ref_n2Ref_m(int n, int m, cv::Mat& point_in_n) {
 
   if (n == m) {
     return point_in_n;
@@ -141,4 +134,3 @@ cv::Mat LightplaneCalibrator::Ref_n2Ref_m(int n, int m,
     return point_in_m;
   }
 }
-

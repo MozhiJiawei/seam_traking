@@ -74,25 +74,6 @@ double CameraCalibrator::Calibrate(cv::Size &image_size) {
       cam_->camera_matrix_, cam_->dist_coeffs_, 
       rvecs, tvecs, CV_CALIB_FIX_K4 | CV_CALIB_FIX_K5);
 
-  //cv::FileStorage fs("rvecs.xml", cv::FileStorage::WRITE);
-  //for (int i = 0; i < rvecs.size(); i++) {
-  //  std::sprintf(ptr, "%d", i);
-  //  name = "rvecs";
-  //  fs << name + ptr << rvecs[i];
-
-  //  name = "rMats";
-  //  cv::Rodrigues(rvecs[i], rMat);
-  //  fs << name + ptr << rMat;
-
-  //  name = "tvecs";
-  //  fs << name + ptr << tvecs[i];
-
-  //  name = "RT";
-  //  tvec = tvecs[i];
-  //  tvec = rMat * tvec;
-  //  fs << name + ptr << tvec;
-  //}
-
   return error;
 
 }
