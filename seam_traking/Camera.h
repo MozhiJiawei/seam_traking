@@ -11,6 +11,7 @@ public:
   friend class LightplaneCalibrator;
 
   void UndistorImage(cv::Mat& src, cv::Mat& dst);
+  // Get pose: chessboard world --> camera
   cv::Mat FindChessboardPose(cv::Mat& src, cv::Size board_size,
     double square_size, bool is_board_reverse = false);
 

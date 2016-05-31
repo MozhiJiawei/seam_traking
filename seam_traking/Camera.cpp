@@ -21,7 +21,7 @@ cv::Mat Camera::FindChessboardPose(cv::Mat & src, cv::Size board_size,
   cv::Mat img_undistort;
   std::vector<cv::Point3f> object_points;
   std::vector<cv::Point2f> img_points;
-  cv::Mat rvec, tvec, rMat, pose;
+  cv::Mat rvec, tvec, rMat, world_to_camera;
   for (int y = 0; y < board_size.height; y++) {
     for (int x = 0; x < board_size.width; x++) {
       object_points.push_back(cv::Point3f(x * square_size,
@@ -54,9 +54,9 @@ cv::Mat Camera::FindChessboardPose(cv::Mat & src, cv::Size board_size,
   cv::solvePnP(object_points, img_points, camera_matrix_,
     cv::Mat_<double>::zeros(1, 5), rvec, tvec);
 
-  pose = cv::Mat_<double>::eye(4, 4);
+  world_to_camera = cv::Mat_<double>::eye(4, 4);
   cv::Rodrigues(rvec, rMat);
-  rMat.copyTo(pose.rowRange(0, 3).colRange(0, 3));
-  tvec.copyTo(pose.rowRange(0, 3).col(3));
-  return pose;
+  rMat.copyTo(world_to_camera.rowRange(0, 3).colRange(0, 3));
+  tvec.copyTo(world_to_camera.rowRange(0, 3).col(3));
+  return world_to_camera;
 }
