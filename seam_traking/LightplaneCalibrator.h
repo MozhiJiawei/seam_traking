@@ -11,8 +11,7 @@ public:
   /* src_ref: Input chessboard images.
    is_board_reverse: Set true if the chessboard is surrounded by black pixels
    Return a vector showing the error chessboard image number.
-   If there is no error, return an empty vector.
-  */
+   If there is no error, return an empty vector.  */
   std::vector<int> AddRefPose(std::vector<cv::Mat>& src_ref,
       bool is_board_reverse = false);
 
@@ -20,8 +19,7 @@ public:
    Make sure that the light images is in the same order as the coressbounding
    chessboard images.
    Return a vector showing the error light image number.
-   If there is no error, return an empty vector.
-  */
+   If there is no error, return an empty vector.  */
   std::vector<int> AddLightImage(std::vector<cv::Mat>& src_light);
   double Calibrate();
 private:
