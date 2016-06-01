@@ -23,29 +23,36 @@ void main()
 
 	std::vector<cv::Mat> mats;
 
-	//char* ptr = new char;
-	//for(int i=1;i<=27;i++)
-	//{
-	//	std::sprintf(ptr,"%d",i);
-	//	src_path = "calibimages\\";
-	//	src = cv::imread(src_path + ptr + ".bmp");
-	//	mats.push_back(src);
-	//}
-	//cv::Size image_size(mats[0].cols, mats[0].rows);
-	//cal.AddChessboardPoints(mats);
-	//cal.Calibrate(image_size);
- // mats.clear();
- // for (int i = 1; i <= 3; i++)
- // {
- //   std::sprintf(ptr, "%d", i);
- //   src_path = "lightplaneimages\\";
- //   src = cv::imread(src_path + ptr + ".bmp");
- //   mats.push_back(src);
- // }
- // lightplane.AddRefPose(mats);
- // lightplane.AddLightImage(mats);
- // lightplane.Calibrate();
-
+	char* ptr = new char;
+	for(int i=1;i<=27;i++)
+	{
+		std::sprintf(ptr,"%d",i);
+		src_path = "calibimages\\";
+		src = cv::imread(src_path + ptr + ".bmp");
+		mats.push_back(src);
+	}
+	cv::Size image_size(mats[0].cols, mats[0].rows);
+	cal.AddChessboardPoints(mats);
+	cal.Calibrate(image_size);
+  mats.clear();
+  for (int i = 1; i <= 3; i++)
+  {
+    std::sprintf(ptr, "%d", i);
+    src_path = "lightplaneimages\\";
+    src = cv::imread(src_path + ptr + ".bmp");
+    mats.push_back(src);
+  }
+  lightplane.AddRefPose(mats);
+  mats.clear();
+  for (int i = 4; i <= 6; i++)
+  {
+    std::sprintf(ptr, "%d", i);
+    src_path = "lightplaneimages\\";
+    src = cv::imread(src_path + ptr + ".bmp");
+    mats.push_back(src);
+  }
+  lightplane.AddLightImage(mats);
+  lightplane.Calibrate();
   handeye.Calibrate();
 
 	//intrinsic.clear();

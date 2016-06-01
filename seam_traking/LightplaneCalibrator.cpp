@@ -46,51 +46,54 @@ std::vector<int> LightplaneCalibrator::AddLightImage(
   //  }
   //}
   //image_points_.push_back(image_point);
-	for ( int i=0; i < srcs_light.size(); i++ ) {
-		std::vector<cv::Point> pts ; std::vector<cv::Point2f> ptfs;
-		cv::Mat im = srcs_light[i], gray;
-		if( im.channels() == 3 )
-			cvtColor(im, gray, CV_BGR2GRAY);
-		else
-			gray =  im;
-		medianBlur ( gray, gray, 11 );
-		cv::Mat threshold_out;
-		cv::threshold(gray, threshold_out, 25, 255, CV_THRESH_BINARY);
+  for (int i = 0; i < srcs_light.size(); i++) {
+    std::vector<cv::Point> pts; std::vector<cv::Point2f> ptfs;
+    cv::Mat im = srcs_light[i], gray;
+    if (im.channels() == 3) {
+      cvtColor(im, gray, CV_BGR2GRAY);
+    }
+    else {
+      gray = im;
+    }
+    cam_->UndistorImage(gray, gray);
+    medianBlur(gray, gray, 11);
+    cv::Mat threshold_out;
+    cv::threshold(gray, threshold_out, 25, 255, CV_THRESH_BINARY);
     cv::Mat dialateStructure = cv::getStructuringElement(
-        cv::MorphShapes::MORPH_RECT , cv::Size(15, 15));
+      cv::MorphShapes::MORPH_RECT, cv::Size(15, 15));
 
-		dilate(threshold_out, threshold_out, dialateStructure, cv::Point(-1, -1));
+    dilate(threshold_out, threshold_out, dialateStructure, cv::Point(-1, -1));
 #ifdef _DEBUG_JIANG_  // for debug
-		namedWindow("threshold_medianBlur_out");
-		imshow("threshold_medianBlur_out",threshold_out);
-		/*imwrite("threshold_medianBlur_out.bmp",threshold_out);*/
-		waitKey(200);
+    cv::namedWindow("threshold_medianBlur_out");
+    cv::imshow("threshold_medianBlur_out", threshold_out);
+    /*imwrite("threshold_medianBlur_out.bmp",threshold_out);*/
+    cv::waitKey(200);
 #endif
-		std::vector<std::vector<cv::Point> > contours;
-		std::vector<cv::Vec4i> hierarchy;
-		findContours( threshold_out, contours, hierarchy, CV_RETR_EXTERNAL,
-        CV_CHAIN_APPROX_NONE , cv::Point(0, 0) );
+    std::vector<std::vector<cv::Point> > contours;
+    std::vector<cv::Vec4i> hierarchy;
+    findContours(threshold_out, contours, hierarchy, CV_RETR_EXTERNAL,
+      CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
 
-		/// Draw contours
-		cv::Mat drawing = cv::Mat::zeros( threshold_out.size(), CV_8U );
-		for( size_t i = 0; i< contours.size(); i++ ) {
-			if (contours[i].size() > 200) {
-				//Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
-				drawContours( drawing, contours, (int)i, cv::Scalar(255),
-            CV_FILLED , 8, hierarchy, 0, cv::Point() );
+    /// Draw contours
+    cv::Mat drawing = cv::Mat::zeros(threshold_out.size(), CV_8U);
+    for (size_t i = 0; i < contours.size(); i++) {
+      if (contours[i].size() > 200) {
+        //Scalar color = Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+        drawContours(drawing, contours, (int)i, cv::Scalar(255),
+          CV_FILLED, 8, hierarchy, 0, cv::Point());
 
-			}
-		}
-		cv::Mat  thining_output;
-		Thinning(drawing, thining_output);
+      }
+    }
+    cv::Mat  thining_output;
+    Thinning(drawing, thining_output);
 #ifdef _DEBUG_JIANG_
-		cv::imshow("thining_output",thining_output);
-		waitKey(200);
+    cv::imshow("thining_output", thining_output);
+    cv::waitKey(200);
 #endif
-		findNonZero( thining_output, pts );
-		ptfs.assign(pts.begin(),pts.end());
-		ims_points_.push_back( ptfs );
-	}
+    findNonZero(thining_output, pts);
+    ptfs.assign(pts.begin(), pts.end());
+    ims_points_.push_back(ptfs);
+  }
   return return_value;
 }
 
@@ -179,93 +182,92 @@ cv::Mat LightplaneCalibrator::Ref_n2Ref_m(int n, int m, cv::Mat& point_in_n) {
 }
 
 void LightplaneCalibrator::Thinning(const cv::Mat & src, cv::Mat & dst) {
-	dst = src.clone();
-	dst /= 255;         // convert to binary image
+  dst = src.clone();
+  dst /= 255;         // convert to binary image
 
-	cv::Mat prev = cv::Mat::zeros(dst.size(), CV_8UC1);
-	cv::Mat diff;
+  cv::Mat prev = cv::Mat::zeros(dst.size(), CV_8UC1);
+  cv::Mat diff;
 
-	do {
-		ThinningIteration(dst, 0);
-		ThinningIteration(dst, 1);
-		cv::absdiff(dst, prev, diff);
-		dst.copyTo(prev);
-	} 
-	while (cv::countNonZero(diff) > 0);
+  do {
+    ThinningIteration(dst, 0);
+    ThinningIteration(dst, 1);
+    cv::absdiff(dst, prev, diff);
+    dst.copyTo(prev);
+  } while (cv::countNonZero(diff) > 0);
 
-	dst *= 255;
+  dst *= 255;
 
 }
 
 void LightplaneCalibrator::ThinningIteration(cv::Mat & img, int iter) {
-	CV_Assert(img.channels() == 1);
-	CV_Assert(img.depth() != sizeof(uchar));
-	CV_Assert(img.rows > 3 && img.cols > 3);
+  CV_Assert(img.channels() == 1);
+  CV_Assert(img.depth() != sizeof(uchar));
+  CV_Assert(img.rows > 3 && img.cols > 3);
 
-	cv::Mat marker = cv::Mat::zeros(img.size(), CV_8UC1);
+  cv::Mat marker = cv::Mat::zeros(img.size(), CV_8UC1);
 
-	int nRows = img.rows;
-	int nCols = img.cols;
+  int nRows = img.rows;
+  int nCols = img.cols;
 
-	if (img.isContinuous()) {
-		nCols *= nRows;
-		nRows = 1;
-	}
+  if (img.isContinuous()) {
+    nCols *= nRows;
+    nRows = 1;
+  }
 
-	int x, y;
-	uchar *pAbove;
-	uchar *pCurr;
-	uchar *pBelow;
-	uchar *nw, *no, *ne;    // north (pAbove)
-	uchar *we, *me, *ea;
-	uchar *sw, *so, *se;    // south (pBelow)
+  int x, y;
+  uchar *pAbove;
+  uchar *pCurr;
+  uchar *pBelow;
+  uchar *nw, *no, *ne;    // north (pAbove)
+  uchar *we, *me, *ea;
+  uchar *sw, *so, *se;    // south (pBelow)
 
-	uchar *pDst;
+  uchar *pDst;
 
-	// initialize row pointers
-	pAbove = NULL;
-	pCurr  = img.ptr<uchar>(0);
-	pBelow = img.ptr<uchar>(1);
+  // initialize row pointers
+  pAbove = NULL;
+  pCurr = img.ptr<uchar>(0);
+  pBelow = img.ptr<uchar>(1);
 
-	for (y = 1; y < img.rows-1; ++y) {
-		// shift the rows up by one
-		pAbove = pCurr;
-		pCurr  = pBelow;
-		pBelow = img.ptr<uchar>(y+1);
+  for (y = 1; y < img.rows - 1; ++y) {
+    // shift the rows up by one
+    pAbove = pCurr;
+    pCurr = pBelow;
+    pBelow = img.ptr<uchar>(y + 1);
 
-		pDst = marker.ptr<uchar>(y);
+    pDst = marker.ptr<uchar>(y);
 
-		// initialize col pointers
-		no = &(pAbove[0]);
-		ne = &(pAbove[1]);
-		me = &(pCurr[0]);
-		ea = &(pCurr[1]);
-		so = &(pBelow[0]);
-		se = &(pBelow[1]);
+    // initialize col pointers
+    no = &(pAbove[0]);
+    ne = &(pAbove[1]);
+    me = &(pCurr[0]);
+    ea = &(pCurr[1]);
+    so = &(pBelow[0]);
+    se = &(pBelow[1]);
 
-		for (x = 1; x < img.cols-1; ++x) {
-			// shift col pointers left by one (scan left to right)
-			nw = no;
-			no = ne;
-			ne = &(pAbove[x+1]);
-			we = me;
-			me = ea;
-			ea = &(pCurr[x+1]);
-			sw = so;
-			so = se;
-			se = &(pBelow[x+1]);
+    for (x = 1; x < img.cols - 1; ++x) {
+      // shift col pointers left by one (scan left to right)
+      nw = no;
+      no = ne;
+      ne = &(pAbove[x + 1]);
+      we = me;
+      me = ea;
+      ea = &(pCurr[x + 1]);
+      sw = so;
+      so = se;
+      se = &(pBelow[x + 1]);
 
-			int A  = (*no == 0 && *ne == 1) + (*ne == 0 && *ea == 1) + 
-				(*ea == 0 && *se == 1) + (*se == 0 && *so == 1) + 
-				(*so == 0 && *sw == 1) + (*sw == 0 && *we == 1) +
-				(*we == 0 && *nw == 1) + (*nw == 0 && *no == 1);
-			int B  = *no + *ne + *ea + *se + *so + *sw + *we + *nw;
-			int m1 = iter == 0 ? (*no * *ea * *so) : (*no * *ea * *we);
-			int m2 = iter == 0 ? (*ea * *so * *we) : (*no * *so * *we);
+      int A = (*no == 0 && *ne == 1) + (*ne == 0 && *ea == 1) +
+        (*ea == 0 && *se == 1) + (*se == 0 && *so == 1) +
+        (*so == 0 && *sw == 1) + (*sw == 0 && *we == 1) +
+        (*we == 0 && *nw == 1) + (*nw == 0 && *no == 1);
+      int B = *no + *ne + *ea + *se + *so + *sw + *we + *nw;
+      int m1 = iter == 0 ? (*no * *ea * *so) : (*no * *ea * *we);
+      int m2 = iter == 0 ? (*ea * *so * *we) : (*no * *so * *we);
 
-			if (A == 1 && (B >= 2 && B <= 6) && m1 == 0 && m2 == 0)
-				pDst[x] = 1;
-		}
-	}
-	img &= ~marker;
+      if (A == 1 && (B >= 2 && B <= 6) && m1 == 0 && m2 == 0)
+        pDst[x] = 1;
+    }
+  }
+  img &= ~marker;
 }
