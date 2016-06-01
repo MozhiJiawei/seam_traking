@@ -20,19 +20,21 @@ public:
    chessboard images.
    Return a vector showing the error light image number.
    If there is no error, return an empty vector.  */
-  std::vector<int> AddLightImage(std::vector<cv::Mat>& src_light);
+  std::vector<int> AddLightImage(std::vector<cv::Mat>& srcs_light);
   double Calibrate();
 private:
   Camera* cam_;
   cv::Size board_size_;
   double square_size_; // unit: mm
   std::vector<cv::Mat> ref_pose_;
-  std::vector<std::vector<cv::Point2f> > image_points_;
+  std::vector<std::vector<cv::Point2f> > ims_points_;
   std::vector<cv::Mat> light_point_cloud_;
 
   void GeneratePointCloud();
   cv::Mat Image2World(cv::Point2f& img_point, int ref_number);
   // Covert the input point in Referance n to Referance m
   cv::Mat Ref_n2Ref_m(int n, int m, cv::Mat& point_in_n);
+  void Thinning(const cv::Mat & src, cv::Mat & dst);
+  void ThinningIteration(cv::Mat & img, int iter);
 };
 #endif /*_LIGHTPLANECALIBRATOR_H__*/

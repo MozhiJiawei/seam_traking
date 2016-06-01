@@ -16,12 +16,16 @@ public:
     double square_size, bool is_board_reverse = false);
 
 private:
-  cv::Mat camera_matrix_;
+  bool must_init_distort_;
   cv::Mat dist_coeffs_;
   cv::Mat map1_, map2_;
+  // Set after camera calibration
   cv::Size image_size_;
-  bool must_init_distort_;
+  cv::Mat camera_matrix_;
+  // Set after lightplane calibration
   cv::Mat light_plane_;
+  // Set after handeye calibration
+  cv::Mat robot_to_camera_;
 };
 
 #endif /*_CAMERA_H__*/
