@@ -9,8 +9,10 @@ class Camera;
 
 struct RobotPose {
 public:
-  RobotPose(double x, double y, double z, double rotate_angle, double sway_angle)
-    :x_(x), y_(y), z_(z), rotate_angle_(rotate_angle), sway_angle_(sway_angle){}
+  RobotPose(double x, double y, double z, double rotate_angle, 
+      double sway_angle) :x_(x), y_(y), z_(z), rotate_angle_(rotate_angle), 
+      sway_angle_(sway_angle){}
+
   double x_; // mm
   double y_;
   double z_;
@@ -38,10 +40,8 @@ private:
 
   //Convert the robot input to pose: base --> robot tool
   cv::Mat ConvertRobotPose(RobotPose robot);
-  cv::Mat Kron(cv::Mat mat1, cv::Mat mat2);
   // A1 * X = X * B1
   // A2 * X = X * B2
   cv::Mat SolveX(cv::Mat A1, cv::Mat B1, cv::Mat A2, cv::Mat B2);
-  double Frobenius(cv::Mat A);
 };
 #endif /*_HANDEYECALIBRATOR_H__*/ 

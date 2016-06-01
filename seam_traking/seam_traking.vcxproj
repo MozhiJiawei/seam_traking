@@ -115,12 +115,14 @@
     <ClCompile Include="HandEyeCalibrator.cpp" />
     <ClCompile Include="LightplaneCalibrator.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Matrix.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraCalibrator.h" />
     <ClInclude Include="HandEyeCalibrator.h" />
     <ClInclude Include="LightplaneCalibrator.h" />
+    <ClInclude Include="Matrix.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
