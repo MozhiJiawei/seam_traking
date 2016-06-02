@@ -26,6 +26,9 @@ public:
   std::vector<int> AddPosePair(std::vector<cv::Mat>& src, 
       std::vector<RobotPose> robot_input, bool is_board_reverse = false);
 
+  /* at least three PosePair are needed to calculate the pose between
+   camera and robot.
+   Save the result in cam_->robot_to_camera_ */
   double Calibrate();
   
 private:
@@ -35,7 +38,7 @@ private:
   };
   Camera* cam_;
   cv::Size board_size_;
-  double square_size_; // unit: mm
+  double square_size_; // mm
   std::vector<PosePair> calib_pose_;
 
   //Convert the robot input to pose: base --> robot tool

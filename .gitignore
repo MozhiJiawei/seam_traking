@@ -3,6 +3,7 @@
 
 /seam_traking/calibimages/
 /seam_traking/lightplaneimages/
+/seam_traking/handeyeimages/
 *.VC.db
 *.xml
 *.swp

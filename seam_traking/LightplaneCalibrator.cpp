@@ -13,6 +13,7 @@ std::vector<int> LightplaneCalibrator::AddRefPose(
 
   cv::Mat pose;
   std::vector<int> error_images;
+  ref_pose_.clear();
   for (int i = 0; i < src_ref.size(); ++i) {
     pose = cam_->FindChessboardPose(src_ref[i], board_size_, square_size_);
     if (abs(pose.at<double>(3, 3) - 1) < 0.00001) {
@@ -28,24 +29,7 @@ std::vector<int> LightplaneCalibrator::AddLightImage(
     std::vector<cv::Mat>& srcs_light) {
 
   std::vector<int> return_value;
-  //std::ifstream in;
-  //int u, v, num, last_num;
-  //std::vector<cv::Point2f> image_point;
-  //in.open("point_cloud.txt");
-  //last_num = num = 1;
-  //while (in.good()) {
-  //  in >> u >> v >> num;
-  //  if (num == last_num) {
-  //    image_point.push_back(cv::Point2f(u, v));
-  //  }
-  //  else {
-  //    image_points_.push_back(image_point);
-  //    image_point.clear();
-  //    image_point.push_back(cv::Point2f(u, v));
-  //    last_num = num;
-  //  }
-  //}
-  //image_points_.push_back(image_point);
+  ims_points_.clear();
   for (int i = 0; i < srcs_light.size(); i++) {
     std::vector<cv::Point> pts; std::vector<cv::Point2f> ptfs;
     cv::Mat im = srcs_light[i], gray;
@@ -122,10 +106,12 @@ double LightplaneCalibrator::Calibrate() {
     light_plane_wcs.at<double>(0, 2) * z_ave;
 
   cam_->light_plane_ = light_plane_wcs * ref_pose_[0].inv();
+  std::cout << cam_->light_plane_ << std::endl;
   return 0.0;
 }
 
 void LightplaneCalibrator::GeneratePointCloud() {
+  CV_Assert(ims_points_.size() == ref_pose_.size());
   cv::Mat point_in_ref0, point_in_refi;
   for (int i = 0; i < ims_points_.size(); i++) {
     for (int j = 0; j < ims_points_[i].size(); j++) {
