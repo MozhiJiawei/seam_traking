@@ -8,6 +8,7 @@
 *.xml
 *.swp
 *~
+out.txt
 
 # User-specific files
 *.suo

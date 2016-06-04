@@ -26,6 +26,9 @@ public:
   std::vector<int> AddPosePair(std::vector<cv::Mat>& src, 
       std::vector<RobotPose> robot_input, bool is_board_reverse = false);
 
+  void GenerateBaseToWorld(std::vector<RobotPose> robot_input, 
+      std::vector<cv::Point3d> world_points);
+
   /* at least three PosePair are needed to calculate the pose between
    camera and robot.
    Save the result in cam_->robot_to_camera_ */
@@ -40,6 +43,7 @@ private:
   cv::Size board_size_;
   double square_size_; // mm
   std::vector<PosePair> calib_pose_;
+  cv::Mat base_to_world_;
 
   //Convert the robot input to pose: base --> robot tool
   cv::Mat ConvertRobotPose(RobotPose robot);

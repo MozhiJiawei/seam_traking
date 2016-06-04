@@ -51,6 +51,13 @@ cv::Mat Camera::FindChessboardPose(cv::Mat & src, cv::Size board_size,
   else {
     return cv::Mat_<double>::zeros(4, 4);
   }
+
+  cv::drawChessboardCorners(img_undistort, board_size, img_points, found);
+  //cv::FileStorage fs("test.xml", cv::FileStorage::WRITE);
+  //fs << "image_corners" << image_corners;
+  //fs.release();
+  cv::imshow("image",img_undistort);
+  cv::waitKey(0);
   cv::solvePnP(object_points, img_points, camera_matrix_,
     cv::Mat_<double>::zeros(1, 5), rvec, tvec);
 

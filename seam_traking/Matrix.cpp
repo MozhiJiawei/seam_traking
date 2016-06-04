@@ -25,7 +25,7 @@ cv::Mat Matrix::Kron(cv::Mat mat1, cv::Mat mat2) {
   return K;
 }
 
-cv::Mat Matrix::RotateX(double angle, bool is_degree) {
+cv::Mat Matrix::RotateX(double angle, int is_33, bool is_degree) {
   cv::Mat rotate_x;
   rotate_x = cv::Mat_<double>::eye(3, 3);
   if (is_degree) {
@@ -35,10 +35,16 @@ cv::Mat Matrix::RotateX(double angle, bool is_degree) {
   rotate_x.at<double>(2, 2) = cos(angle);
   rotate_x.at<double>(1, 2) = sin(angle);
   rotate_x.at<double>(2, 1) = -sin(angle);
+  if (is_33 == 4) {
+    cv::Mat rotate_44;
+    rotate_44 = cv::Mat_<double>::eye(4, 4);
+    rotate_x.copyTo(rotate_44.rowRange(0, 3).colRange(0, 3));
+    return rotate_44;
+  }
   return rotate_x;
 }
 
-cv::Mat Matrix::RotateY(double angle, bool is_degree) {
+cv::Mat Matrix::RotateY(double angle, int is_33, bool is_degree) {
   cv::Mat rotate_y;
   rotate_y = cv::Mat_<double>::eye(3, 3);
   if (is_degree) {
@@ -48,10 +54,16 @@ cv::Mat Matrix::RotateY(double angle, bool is_degree) {
   rotate_y.at<double>(2, 2) = cos(angle);
   rotate_y.at<double>(0, 2) = -sin(angle);
   rotate_y.at<double>(2, 0) = sin(angle);
+  if (is_33 == 4) {
+    cv::Mat rotate_44;
+    rotate_44 = cv::Mat_<double>::eye(4, 4);
+    rotate_y.copyTo(rotate_44.rowRange(0, 3).colRange(0, 3));
+    return rotate_44;
+  }
   return rotate_y;
 }
 
-cv::Mat Matrix::RotateZ(double angle, bool is_degree) {
+cv::Mat Matrix::RotateZ(double angle, int is_33, bool is_degree) {
   cv::Mat rotate_z;
   rotate_z = cv::Mat_<double>::eye(3, 3);
   if (is_degree) {
@@ -61,5 +73,11 @@ cv::Mat Matrix::RotateZ(double angle, bool is_degree) {
   rotate_z.at<double>(1, 1) = cos(angle);
   rotate_z.at<double>(0, 1) = sin(angle);
   rotate_z.at<double>(1, 0) = -sin(angle);
+  if (is_33 == 4) {
+    cv::Mat rotate_44;
+    rotate_44 = cv::Mat_<double>::eye(4, 4);
+    rotate_z.copyTo(rotate_44.rowRange(0, 3).colRange(0, 3));
+    return rotate_44;
+  }
   return rotate_z;
 }
