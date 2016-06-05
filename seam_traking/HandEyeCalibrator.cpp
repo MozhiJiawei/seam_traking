@@ -42,84 +42,62 @@ std::vector<int> HandEyeCalibrator::AddPosePair(std::vector<cv::Mat>& src,
 void HandEyeCalibrator::GenerateBaseToWorld(std::vector<RobotPose> robot_input, 
     std::vector<cv::Point3d> world_points) {
 
-  //cv::Mat pose_zero, pose, pose_to_zero;
-  //pose_zero = ConvertRobotPose(robot_input[0]);
-  //for (int i = 0; i < robot_input.size(); ++i) {
-  //  pose = ConvertRobotPose(robot_input[i]);
-  //  pose_to_zero =  pose_zero * pose.inv();
-  //  std::cout << pose_to_zero << std::endl;
-  //  std::cout << std::sqrt(pose_to_zero.at<double>(0, 3) * 
-  //    pose_to_zero.at<double>(0, 3) + pose_to_zero.at<double>(1, 3) * 
-  //    pose_to_zero.at<double>(1, 3)) << std::endl;
-
-  //}
-  std::vector<cv::Mat> base_to_robot;
-  cv::Mat pose, rotate;
-  rotate = cv::Mat_<double>::eye(4, 4);
+  std::vector<cv::Mat> base_points;
+  cv::Mat base_point, diff, world_point, rMat, tvec;
+  double rotate_angle_base, rotate_angle_world, x, y;
+  double x_sum, y_sum, z_sum, rotate_sum, rotate_ave;
   for (int i = 0; i < robot_input.size(); ++i) {
-    pose = Matrix::RotateX(180, 4) * ConvertRobotPose(robot_input[i]).inv();
-    base_to_robot.push_back(pose.clone());
+    base_point = cv::Mat_<double>::ones(4, 1);
+    base_point.at<double>(0, 0) = robot_input[i].x_;
+    base_point.at<double>(1, 0) = robot_input[i].y_;
+    base_point.at<double>(2, 0) = robot_input[i].z_;
+    base_point = Matrix::RotateX(180, 4) * base_point;
+    base_points.push_back(base_point.clone());
   }
-  double rotate_angle_base, x, y, rotate_angle_world;
-  double rotate_sum, rotate_ave;
+
   rotate_sum = 0;
-  for (int i = 1; i < base_to_robot.size(); i++) {
-    std::cout << base_to_robot[i] << std::endl;
-    x = base_to_robot[i].at<double>(0, 3) - base_to_robot[0].at<double>(0, 3);
-    y = base_to_robot[i].at<double>(1, 3) - base_to_robot[0].at<double>(1, 3);
+  for (int i = 1; i < base_points.size(); i++) {
+    x = base_points[i].at<double>(0, 0) - base_points[0].at<double>(0, 0);
+    y = base_points[i].at<double>(1, 0) - base_points[0].at<double>(1, 0);
     rotate_angle_base = std::acos(x / std::sqrt(x * x + y * y));
     if (y < 0) {
       rotate_angle_base = 2 * PI - rotate_angle_base;
     }
-    std::cout << x << std::endl;
-    std::cout << y << std::endl;
-    std::cout << rotate_angle_base << std::endl << std::endl;
     x = world_points[i].x - world_points[0].x;
     y = world_points[i].y - world_points[0].y;
     rotate_angle_world = std::acos(x / std::sqrt(x * x + y * y));
     if (y < 0) {
       rotate_angle_world = 2 * PI - rotate_angle_world;
     }
-    std::cout << x << std::endl;
-    std::cout << y << std::endl;
-    std::cout << rotate_angle_world << std::endl << std::endl;
     rotate_sum += rotate_angle_base - rotate_angle_world;
-    std::cout << rotate_sum / i << std::endl;
   }
-  rotate_ave = rotate_sum / (base_to_robot.size() - 1);
-
-  cv::Mat world_point, diff;
-  double x_sum, y_sum, z_sum;
-  x_sum = 0;
-  y_sum = 0;
-  z_sum = 0;
-  for (int i = 0; i < base_to_robot.size(); ++i) {
-    world_point = Matrix::RotateZ(rotate_ave, 3, false) * 
-        cv::Mat(world_points[i]).reshape(1, 3);
-    
-    diff = base_to_robot[i].rowRange(0, 3).col(3) - world_point;
-    x_sum += diff.at<double>(0, 0);
-    y_sum += diff.at<double>(1, 0);
-    z_sum += diff.at<double>(2, 0);
-    std::cout << world_point << std::endl;
-    std::cout << diff << std::endl;
-  }
-  x_sum = x_sum / world_points.size();
-  y_sum = y_sum / world_points.size();
-  z_sum = z_sum / world_points.size();
-  std::cout << x_sum << std::endl << y_sum << std::endl << z_sum << std::endl;
-  
-  cv::Mat rMat, tvec;
+  rotate_ave = rotate_sum / (base_points.size() - 1);
   rMat = Matrix::RotateZ(rotate_ave, 3, false) * Matrix::RotateX(180) ;
+
   tvec = cv::Mat_<double>::zeros(3, 1);
-  tvec.at<double>(0, 0) = x_sum;
-  tvec.at<double>(1, 0) = -y_sum;
-  tvec.at<double>(2, 0) = -z_sum;
+  for (int i = 0; i < world_points.size(); ++i) {
+    world_point = Matrix::RotateZ(-rotate_ave, 3, false) * 
+        cv::Mat(world_points[i]).reshape(1, 3);
+
+    diff = base_points[i].rowRange(0,3) - world_point;
+    tvec = tvec + diff;
+    std::cout << diff << std::endl;
+    std::cout << base_point << std::endl << std::endl;
+  }
+  tvec = tvec / world_points.size();
+  tvec = Matrix::RotateX(-180, 3) * tvec;
+
   base_to_world_ = cv::Mat_<double>::eye(4, 4);
   rMat.copyTo(base_to_world_.rowRange(0, 3).colRange(0, 3));
   tvec = -rMat * tvec;
   tvec.copyTo(base_to_world_.rowRange(0, 3).col(3));
   std::cout << base_to_world_ << std::endl;
+
+  for (int i = 0; i < base_points.size(); i++) {
+    std::cout << base_to_world_ * Matrix::RotateX(-180,4) * base_points[i] 
+        << std::endl;
+
+  }
 }
 
 double HandEyeCalibrator::Calibrate() {
