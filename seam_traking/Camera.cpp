@@ -2,7 +2,25 @@
 
 Camera::Camera():must_init_distort_(true) {
   light_plane_ = cv::Mat_<double>::zeros(1, 4);
-};
+}
+cv::Point3d Camera::PixelToRobot(cv::Point2d pixel_point) {
+  cv::Mat A, B, result_ccs, result_robot;
+  cv::Point3d robot_point;
+  A = cv::Mat_<double>::zeros(3, 3);
+  B = cv::Mat_<double>::zeros(3, 1);
+  camera_matrix_.rowRange(0, 2).copyTo(A.rowRange(0, 2));
+  A.at<double>(0, 2) -= pixel_point.x;
+  A.at<double>(1, 2) -= pixel_point.y;
+  light_plane_.colRange(0, 3).copyTo(A.row(2));
+  B.at<double>(2, 0) = -light_plane_.at<double>(0, 3);
+  result_ccs = A.inv() * B;
+  result_robot = camera_to_robot_ * result_ccs;
+  robot_point.x = result_robot.at<double>(0, 0);
+  robot_point.y = result_robot.at<double>(1, 0);
+  robot_point.z = result_robot.at<double>(2, 0);
+  return robot_point;
+}
+;
 
 void Camera::UndistorImage(cv::Mat& src, cv::Mat& dst) { 
   if (must_init_distort_) {

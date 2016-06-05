@@ -31,7 +31,7 @@ public:
 
   /* at least three PosePair are needed to calculate the pose between
    camera and robot.
-   Save the result in cam_->robot_to_camera_ */
+   Save the result in cam_->camera_to_robot_ */
   double Calibrate();
   
 private:

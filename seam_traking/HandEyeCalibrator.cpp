@@ -22,11 +22,13 @@ std::vector<int> HandEyeCalibrator::AddPosePair(std::vector<cv::Mat>& src,
     pose_pair.world_to_camera_ = cam_->FindChessboardPose(src[i], 
         board_size_, square_size_, is_board_reverse);
 
+    cam_->camera_to_robot_ = pose_pair.base_to_robot_ * base_to_world_.inv() * 
+      pose_pair.world_to_camera_.inv();
+
     std::cout << pose_pair.base_to_robot_ << std::endl;
     std::cout << pose_pair.world_to_camera_ << std::endl;
     std::cout << base_to_world_ << std::endl;
-    std::cout << pose_pair.world_to_camera_ * base_to_world_ * 
-        pose_pair.base_to_robot_.inv() << std::endl;
+    std::cout << cam_->camera_to_robot_ << std::endl;
 
     if (abs(pose_pair.world_to_camera_.at<double>(3, 3) - 1) < 0.00001 &&
         abs(pose_pair.base_to_robot_.at<double>(3, 3) - 1) < 0.00001) {
@@ -153,7 +155,7 @@ double HandEyeCalibrator::Calibrate() {
         log << error_frobenius << std::endl << std::endl;
         if (error_frobenius < min_error) {
           min_error = error_frobenius;
-          cam_->robot_to_camera_ = X;
+          cam_->camera_to_robot_ = X.inv();
         }
       }
     }

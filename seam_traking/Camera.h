@@ -10,10 +10,7 @@ public:
   friend class HandEyeCalibrator;
   friend class LightplaneCalibrator;
 
-  void UndistorImage(cv::Mat& src, cv::Mat& dst);
-  // Get pose: chessboard world --> camera
-  cv::Mat FindChessboardPose(cv::Mat& src, cv::Size board_size,
-    double square_size, bool is_board_reverse = false);
+  cv::Point3d PixelToRobot(cv::Point2d pixel_point);
 
 private:
   bool must_init_distort_;
@@ -25,7 +22,12 @@ private:
   // Set after lightplane calibration
   cv::Mat light_plane_;
   // Set after handeye calibration
-  cv::Mat robot_to_camera_;
+  cv::Mat camera_to_robot_;
+
+  void UndistorImage(cv::Mat& src, cv::Mat& dst);
+  // Get pose: chessboard world --> camera
+  cv::Mat FindChessboardPose(cv::Mat& src, cv::Size board_size,
+    double square_size, bool is_board_reverse = false);
 };
 
 #endif /*_CAMERA_H__*/
