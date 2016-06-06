@@ -29,6 +29,7 @@ std::vector<int> LightplaneCalibrator::AddLightImage(
     std::vector<cv::Mat>& srcs_light) {
 
   std::vector<int> return_value;
+  std::vector<cv::Point>::iterator begin_100, end_900, itr;
   ims_points_.clear();
   for (int i = 0; i < srcs_light.size(); i++) {
     std::vector<cv::Point> pts; std::vector<cv::Point2f> ptfs;
@@ -75,8 +76,26 @@ std::vector<int> LightplaneCalibrator::AddLightImage(
     cv::waitKey(200);
 #endif
     findNonZero(thining_output, pts);
-    ptfs.assign(pts.begin(), pts.end());
+    for (itr = pts.begin(); itr != pts.end(); ++itr) {
+      if ((*itr).y <= 100) {
+        begin_100 = itr;
+      }
+      if ((*itr).y <= 900) {
+        end_900 = itr;
+      }
+    }
+    ptfs.assign(begin_100, end_900);
     ims_points_.push_back(ptfs);
+  }
+  std::ofstream log;
+  log.open("ims_points.txt");
+  for (int i = 0; i < ims_points_.size(); i++) {
+    for (int j = 0; j < ims_points_[i].size(); j++) {
+      log << ims_points_[i][j].x << " " << ims_points_[i][j].y << " " << i + 1 
+          << std::endl;
+
+    }
+    log << std::endl;
   }
   return return_value;
 }

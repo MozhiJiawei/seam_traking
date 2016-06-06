@@ -25,9 +25,6 @@ std::vector<int> HandEyeCalibrator::AddPosePair(std::vector<cv::Mat>& src,
     cam_->camera_to_robot_ = pose_pair.base_to_robot_ * base_to_world_.inv() * 
       pose_pair.world_to_camera_.inv();
 
-    std::cout << pose_pair.base_to_robot_ << std::endl;
-    std::cout << pose_pair.world_to_camera_ << std::endl;
-    std::cout << base_to_world_ << std::endl;
     std::cout << cam_->camera_to_robot_ << std::endl;
 
     if (abs(pose_pair.world_to_camera_.at<double>(3, 3) - 1) < 0.00001 &&

@@ -24,7 +24,7 @@ void main()
 	std::vector<cv::Mat> mats;
 
 	char* ptr = new char;
-	for(int i=1;i<=27;i++) {
+	for(int i=0;i<=28;i++) {
 		std::sprintf(ptr,"%d",i);
 		src_path = "calibimages\\";
 		src = cv::imread(src_path + ptr + ".bmp");
@@ -33,24 +33,24 @@ void main()
 	cv::Size image_size(mats[0].cols, mats[0].rows);
 	cal.AddChessboardPoints(mats);
 	cal.Calibrate(image_size);
- // mats.clear();
- // for (int i = 1; i <= 3; i++) {
- //   std::sprintf(ptr, "%d", i);
- //   src_path = "lightplaneimages\\";
- //   src = cv::imread(src_path + ptr + ".bmp");
- //   mats.push_back(src);
- // }
- // lightplane.AddRefPose(mats);
- // mats.clear();
- // for (int i = 4; i <= 6; i++) {
- //   std::sprintf(ptr, "%d", i);
- //   src_path = "lightplaneimages\\";
- //   src = cv::imread(src_path + ptr + ".bmp");
- //   mats.push_back(src);
- // }
- // lightplane.AddLightImage(mats);
- // lightplane.Calibrate(); 
- // mats.clear();
+  mats.clear();
+  for (int i = 1; i <= 3; i++) {
+    std::sprintf(ptr, "%d", i);
+    src_path = "lightplaneimages\\";
+    src = cv::imread(src_path + ptr + ".bmp");
+    mats.push_back(src);
+  }
+  lightplane.AddRefPose(mats);
+  mats.clear();
+  for (int i = 4; i <= 6; i++) {
+    std::sprintf(ptr, "%d", i);
+    src_path = "lightplaneimages\\";
+    src = cv::imread(src_path + ptr + ".bmp");
+    mats.push_back(src);
+  }
+  lightplane.AddLightImage(mats);
+  lightplane.Calibrate(); 
+  mats.clear();
  // for (int i = 1; i <= 6; i++) {
  //   std::sprintf(ptr, "%d", i);
  //   src_path = "handeyeimages\\";
@@ -72,12 +72,12 @@ void main()
  // robot_input.push_back(RobotPose(754.8, -571.16, -865.48, 5.43, -15.76));
  // handeye.AddPosePair(mats, robot_input);
   std::vector<RobotPose> robot_input;
-  robot_input.push_back(RobotPose(626.84, -696.29, -536.32, -82.82, 0));
-  robot_input.push_back(RobotPose(576.95, -704.96, -536.32, -81.57, 0));
-  robot_input.push_back(RobotPose(570.83, -664.95, -536.32, -81.57, 0));
-  robot_input.push_back(RobotPose(620.83, -657.01, -536.32, -81.57, 0));
-  robot_input.push_back(RobotPose(612.06, -668.77, -536.32, -81.57, 0));
-  robot_input.push_back(RobotPose(585.52, -693.54, -536.32, -81.57, 0));
+  robot_input.push_back(RobotPose(787.45, -696.22, -664.02, -80.35, 0));
+  robot_input.push_back(RobotPose(739.05, -709.50, -664.02, -80.35, 0));
+  robot_input.push_back(RobotPose(728.80, -670.40, -664.02, -80.35, 0));
+  robot_input.push_back(RobotPose(777.51, -657.28, -664.02, -80.35, 0));
+  robot_input.push_back(RobotPose(770.30, -669.98, -664.02, -80.35, 0));
+  robot_input.push_back(RobotPose(746.00, -697.03, -664.02, -80.59, 0));
   std::vector<cv::Point3d> world_points;
   world_points.push_back(cv::Point3d(0, 0, 0));
   world_points.push_back(cv::Point3d(50, 0, 0));
@@ -94,9 +94,10 @@ void main()
     mats.push_back(src);
   }
   robot_input.clear();
-  robot_input.push_back(RobotPose(626.98, -647.09, -530.66, -81.57, 0));
+  robot_input.push_back(RobotPose(787.31, -664.76, -664.02, -80.59, 0));
   handeye.AddPosePair(mats, robot_input);
-  handeye.Calibrate();
+  cam.PixelToRobot(cv::Point2d(1058, 823));
+  cam.PixelToRobot(cv::Point2d(1092, 448));
 
 	//intrinsic.clear();
 	//distortion.clear();
