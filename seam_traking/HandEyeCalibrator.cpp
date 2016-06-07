@@ -25,8 +25,6 @@ std::vector<int> HandEyeCalibrator::AddPosePair(std::vector<cv::Mat>& src,
     cam_->camera_to_robot_ = pose_pair.base_to_robot_ * base_to_world_.inv() * 
       pose_pair.world_to_camera_.inv();
 
-    std::cout << cam_->camera_to_robot_ << std::endl;
-
     if (abs(pose_pair.world_to_camera_.at<double>(3, 3) - 1) < 0.00001 &&
         abs(pose_pair.base_to_robot_.at<double>(3, 3) - 1) < 0.00001) {
 
@@ -80,8 +78,6 @@ void HandEyeCalibrator::GenerateBaseToWorld(std::vector<RobotPose> robot_input,
 
     diff = base_points[i].rowRange(0,3) - world_point;
     tvec = tvec + diff;
-    std::cout << diff << std::endl;
-    std::cout << base_point << std::endl << std::endl;
   }
   tvec = tvec / world_points.size();
   tvec = Matrix::RotateX(-180, 3) * tvec;
@@ -90,8 +86,6 @@ void HandEyeCalibrator::GenerateBaseToWorld(std::vector<RobotPose> robot_input,
   rMat.copyTo(base_to_world_.rowRange(0, 3).colRange(0, 3));
   tvec = -rMat * tvec;
   tvec.copyTo(base_to_world_.rowRange(0, 3).col(3));
-  std::cout << base_to_world_ << std::endl;
-
   for (int i = 0; i < base_points.size(); i++) {
     std::cout << base_to_world_ * Matrix::RotateX(-180,4) * base_points[i] 
         << std::endl;
@@ -100,24 +94,6 @@ void HandEyeCalibrator::GenerateBaseToWorld(std::vector<RobotPose> robot_input,
 }
 
 double HandEyeCalibrator::Calibrate() {
-  //RobotPose p0(773.40, -638.90, -562.08, -89.98, 0),
-  //  p1(481.51, -638.90, -562.08, -89.98, 0),
-  //  p2(480.93, -880.07, -562.08, -89.98, 0),
-  //  p3(773.40, -638.90, -410.86, -89.98, 0),
-  //  p4(773.40, -537.40, -383.45, -89.98, -30);
-
-  //cv::Mat pose0, pose1, pose2, pose3, pose4;
-  //pose0 = ConvertRobotPose(p0);
-  //pose1 = ConvertRobotPose(p1);
-  //pose2 = ConvertRobotPose(p2);
-  //pose3 = ConvertRobotPose(p3);
-  //pose4 = ConvertRobotPose(p4);
-
-  //std::cout << pose0 * pose1.inv() << std::endl;
-  //std::cout << pose1 * pose2.inv() << std::endl;
-  //std::cout << pose2 * pose3.inv() << std::endl;
-  //std::cout << pose3 * pose4.inv() << std::endl;
-
   CV_Assert(calib_pose_.size() >= 3);
   cv::Mat camera_ij, camera_jk, robot_ij, robot_jk, X, minX;
   double error_frobenius, min_error;

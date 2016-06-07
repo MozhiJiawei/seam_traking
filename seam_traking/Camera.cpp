@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include <fstream>
 
 Camera::Camera():must_init_distort_(true) {
   light_plane_ = cv::Mat_<double>::zeros(1, 4);
@@ -19,7 +20,14 @@ cv::Point3d Camera::PixelToRobot(cv::Point2d pixel_point) {
   robot_point.x = result_robot.at<double>(0, 0);
   robot_point.y = result_robot.at<double>(1, 0);
   robot_point.z = result_robot.at<double>(2, 0);
+  std::cout << robot_point << std::endl << std::endl;
   return robot_point;
+}
+
+void Camera::LogToFile(const std::string & filename) {
+}
+
+void Camera::InitFromFile(const std::string & filename) {
 }
 
 void Camera::UndistorImage(cv::Mat& src, cv::Mat& dst) { 

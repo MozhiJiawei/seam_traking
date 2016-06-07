@@ -2,6 +2,7 @@
 #define _CAMERA_H__
 #include <opencv2/opencv.hpp>
 #include <vector>
+#include <string>
 
 class Camera {
 public:
@@ -11,6 +12,9 @@ public:
   friend class LightplaneCalibrator;
 
   cv::Point3d PixelToRobot(cv::Point2d pixel_point);
+  void LogToFile(const std::string &filename);
+  void InitFromFile(const std::string &filename);
+  void UndistorImage(cv::Mat& src, cv::Mat& dst);
 
 private:
   bool must_init_distort_;
@@ -24,7 +28,6 @@ private:
   // Set after handeye calibration
   cv::Mat camera_to_robot_;
 
-  void UndistorImage(cv::Mat& src, cv::Mat& dst);
   // Get pose: chessboard world --> camera
   cv::Mat FindChessboardPose(cv::Mat& src, cv::Size board_size,
     double square_size, bool is_board_reverse = false);

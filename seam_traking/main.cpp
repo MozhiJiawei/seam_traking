@@ -34,6 +34,15 @@ void main()
 	cal.AddChessboardPoints(mats);
 	cal.Calibrate(image_size);
   mats.clear();
+  //for (int i = 1; i <= 8; i++) {
+  //  std::sprintf(ptr, "%d", i);
+  //  src_path = "distort\\";
+  //  src = cv::imread(src_path + ptr + ".bmp");
+  //  cam.UndistorImage(src, src);
+  //  src_path = "undistort\\"; 
+  //  cv::imwrite(src_path + ptr + ".bmp", src);
+  //}
+  //
   for (int i = 1; i <= 3; i++) {
     std::sprintf(ptr, "%d", i);
     src_path = "lightplaneimages\\";
@@ -96,15 +105,17 @@ void main()
   robot_input.clear();
   robot_input.push_back(RobotPose(787.31, -664.76, -664.02, -80.59, 0));
   handeye.AddPosePair(mats, robot_input);
-  cam.PixelToRobot(cv::Point2d(1058, 823));
-  cam.PixelToRobot(cv::Point2d(1092, 448));
+  cam.PixelToRobot(cv::Point2d(1105, 558));
+  cam.PixelToRobot(cv::Point2d(1124, 426));
+  cam.PixelToRobot(cv::Point2d(1119, 357));
+  cam.PixelToRobot(cv::Point2d(1133, 284));
 
+  return;
 	//intrinsic.clear();
 	//distortion.clear();
 
 	//CvMat camera_matrix = cal.GetCameraMatrix();
 	//CvMat *intrinsic_matrix = &camera_matrix;
-
 	//intrinsic = std::vector<double>(
  //   intrinsic_matrix->data.db,
  //   intrinsic_matrix->data.db + 9);

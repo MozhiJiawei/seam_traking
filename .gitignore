@@ -4,6 +4,8 @@
 /seam_traking/calibimages/
 /seam_traking/lightplaneimages/
 /seam_traking/handeyeimages/
+/seam_traking/distort/
+/seam_traking/undistort/
 *.VC.db
 *.xml
 *.swp

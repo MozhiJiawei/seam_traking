@@ -87,16 +87,16 @@ std::vector<int> LightplaneCalibrator::AddLightImage(
     ptfs.assign(begin_100, end_900);
     ims_points_.push_back(ptfs);
   }
-  std::ofstream log;
-  log.open("ims_points.txt");
-  for (int i = 0; i < ims_points_.size(); i++) {
-    for (int j = 0; j < ims_points_[i].size(); j++) {
-      log << ims_points_[i][j].x << " " << ims_points_[i][j].y << " " << i + 1 
-          << std::endl;
+  //std::ofstream log;
+  //log.open("ims_points.txt");
+  //for (int i = 0; i < ims_points_.size(); i++) {
+  //  for (int j = 0; j < ims_points_[i].size(); j++) {
+  //    log << ims_points_[i][j].x << " " << ims_points_[i][j].y << " " << i + 1 
+  //        << std::endl;
 
-    }
-    log << std::endl;
-  }
+  //  }
+  //  log << std::endl;
+  //}
   return return_value;
 }
 
@@ -125,7 +125,6 @@ double LightplaneCalibrator::Calibrate() {
     light_plane_wcs.at<double>(0, 2) * z_ave;
 
   cam_->light_plane_ = light_plane_wcs * ref_pose_[0].inv();
-  std::cout << cam_->light_plane_ << std::endl;
   return 0.0;
 }
 

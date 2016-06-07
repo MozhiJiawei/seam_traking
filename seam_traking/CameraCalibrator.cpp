@@ -74,9 +74,6 @@ double CameraCalibrator::Calibrate(cv::Size &image_size) {
       cam_->camera_matrix_, cam_->dist_coeffs_, 
       rvecs, tvecs, CV_CALIB_FIX_K4 | CV_CALIB_FIX_K5);
 
-  std::cout << cam_->camera_matrix_ << std::endl;
-  std::cout << cam_->dist_coeffs_ << std::endl;
-  std::cout << error << std::endl;
   return error;
 
 }
