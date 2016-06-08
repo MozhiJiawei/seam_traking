@@ -41,7 +41,7 @@ void HandEyeCalibrator::GenerateBaseToWorld(std::vector<RobotPose> robot_input,
 
   std::vector<cv::Mat> base_points;
   cv::Mat base_point, diff, world_point, rMat, tvec;
-  double rotate_angle_base, rotate_angle_world, x, y;
+  double rotate_angle_base, rotate_angle_world;
   double x_sum, y_sum, z_sum, rotate_sum, rotate_ave;
   for (int i = 0; i < robot_input.size(); ++i) {
     base_point = cv::Mat_<double>::ones(4, 1);
@@ -54,26 +54,22 @@ void HandEyeCalibrator::GenerateBaseToWorld(std::vector<RobotPose> robot_input,
 
   rotate_sum = 0;
   for (int i = 1; i < base_points.size(); i++) {
-    x = base_points[i].at<double>(0, 0) - base_points[0].at<double>(0, 0);
-    y = base_points[i].at<double>(1, 0) - base_points[0].at<double>(1, 0);
-    rotate_angle_base = std::acos(x / std::sqrt(x * x + y * y));
-    if (y < 0) {
-      rotate_angle_base = 2 * PI - rotate_angle_base;
-    }
-    x = world_points[i].x - world_points[0].x;
-    y = world_points[i].y - world_points[0].y;
-    rotate_angle_world = std::acos(x / std::sqrt(x * x + y * y));
-    if (y < 0) {
-      rotate_angle_world = 2 * PI - rotate_angle_world;
-    }
+    rotate_angle_base = Matrix::GetLineAngle(
+        base_points[i].at<double>(0, 0) - base_points[0].at<double>(0, 0),
+        base_points[i].at<double>(1, 0) - base_points[0].at<double>(1, 0));
+
+    rotate_angle_world = Matrix::GetLineAngle(
+        world_points[i].x - world_points[0].x,
+        world_points[i].y - world_points[0].y);
+
     rotate_sum += rotate_angle_base - rotate_angle_world;
   }
   rotate_ave = rotate_sum / (base_points.size() - 1);
-  rMat = Matrix::RotateZ(rotate_ave, 3, false) * Matrix::RotateX(180) ;
+  rMat = Matrix::RotateZ(rotate_ave, 3) * Matrix::RotateX(180) ;
 
   tvec = cv::Mat_<double>::zeros(3, 1);
   for (int i = 0; i < world_points.size(); ++i) {
-    world_point = Matrix::RotateZ(-rotate_ave, 3, false) * 
+    world_point = Matrix::RotateZ(-rotate_ave, 3) * 
         cv::Mat(world_points[i]).reshape(1, 3);
 
     diff = base_points[i].rowRange(0,3) - world_point;
@@ -97,35 +93,26 @@ double HandEyeCalibrator::Calibrate() {
   CV_Assert(calib_pose_.size() >= 3);
   cv::Mat camera_ij, camera_jk, robot_ij, robot_jk, X, minX;
   double error_frobenius, min_error;
-  std::ofstream log;
-  log.open("out.txt");
   min_error = 1000;
   for (unsigned int i = 0; i < calib_pose_.size(); ++i) {
     for (unsigned int j = i + 1; j < calib_pose_.size(); ++j) {
       for (unsigned int k = j + 1; k < calib_pose_.size(); ++k) {
         camera_ij = calib_pose_[j].world_to_camera_ *
-           calib_pose_[i].world_to_camera_.inv();
+            calib_pose_[i].world_to_camera_.inv();
 
         robot_ij = calib_pose_[j].base_to_robot_ *
-           calib_pose_[i].base_to_robot_.inv();
+            calib_pose_[i].base_to_robot_.inv();
 
         camera_jk = calib_pose_[k].world_to_camera_ *
-           calib_pose_[j].world_to_camera_.inv();
+            calib_pose_[j].world_to_camera_.inv();
 
         robot_jk = calib_pose_[k].base_to_robot_ *
-           calib_pose_[j].base_to_robot_.inv();
+            calib_pose_[j].base_to_robot_.inv();
 
         X = SolveX(camera_ij, robot_ij, camera_jk, robot_jk);
         error_frobenius = Matrix::Frobenius(camera_ij * X - X * robot_ij) +
             Matrix::Frobenius(camera_jk * X - X * robot_jk);
 
-        log << i << " " << j << " " << k << std::endl;
-        log << camera_ij << std::endl;
-        log << camera_jk << std::endl;
-        log << robot_ij << std::endl;
-        log << robot_jk << std::endl;
-        log << X << std::endl;
-        log << error_frobenius << std::endl << std::endl;
         if (error_frobenius < min_error) {
           min_error = error_frobenius;
           cam_->camera_to_robot_ = X.inv();
@@ -133,7 +120,6 @@ double HandEyeCalibrator::Calibrate() {
       }
     }
   }
-  log.close();
   return min_error;
 }
 

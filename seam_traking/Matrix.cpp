@@ -25,6 +25,18 @@ cv::Mat Matrix::Kron(cv::Mat mat1, cv::Mat mat2) {
   return K;
 }
 
+double Matrix::GetLineAngle(double x, double y, bool is_degree) {
+  double angle;
+  angle = std::acos(x / std::sqrt(x * x + y * y));
+  if (y < 0) {
+    angle = 2 * PI - angle;
+  }
+  if (is_degree) {
+    angle = angle / PI * 180;
+  }
+  return angle;
+}
+
 cv::Mat Matrix::RotateX(double angle, int is_33, bool is_degree) {
   cv::Mat rotate_x;
   rotate_x = cv::Mat_<double>::eye(3, 3);
