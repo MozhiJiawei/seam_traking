@@ -3,7 +3,13 @@
 
 Camera::Camera():must_init_distort_(true) {
   light_plane_ = cv::Mat_<double>::zeros(1, 4);
+  InitFromParam();
 }
+
+cv::Point2d Camera::ImagePro(cv::Mat & src, cv::Point2d last_point) {
+  return cv::Point2d();
+}
+
 cv::Point3d Camera::PixelToRobot(cv::Point2d pixel_point) {
   cv::Mat A, B, result_ccs, result_robot;
   cv::Point3d robot_point;
@@ -24,10 +30,10 @@ cv::Point3d Camera::PixelToRobot(cv::Point2d pixel_point) {
   return robot_point;
 }
 
-void Camera::LogToFile(const std::string & filename) {
+void Camera::WriteToParam() {
 }
 
-void Camera::InitFromFile(const std::string & filename) {
+void Camera::InitFromParam() {
 }
 
 void Camera::UndistorImage(cv::Mat& src, cv::Mat& dst) { 

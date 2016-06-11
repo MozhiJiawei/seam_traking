@@ -112,6 +112,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CameraCalibrator.cpp" />
+    <ClCompile Include="CoordinatesBuffer.cpp" />
     <ClCompile Include="HandEyeCalibrator.cpp" />
     <ClCompile Include="LightplaneCalibrator.cpp" />
     <ClCompile Include="main.cpp" />
@@ -121,6 +122,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CameraCalibrator.h" />
+    <ClInclude Include="CoordinatesBuffer.h" />
     <ClInclude Include="HandEyeCalibrator.h" />
     <ClInclude Include="LightplaneCalibrator.h" />
     <ClInclude Include="Matrix.h" />

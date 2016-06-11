@@ -18,7 +18,7 @@ std::vector<int> HandEyeCalibrator::AddPosePair(std::vector<cv::Mat>& src,
   std::vector<int> error_pose_pair;
   calib_pose_.clear();
   for (unsigned int i = 0; i < src.size(); ++i) {
-    pose_pair.base_to_robot_ = ConvertRobotPose(robot_input[i]);
+    pose_pair.base_to_robot_ = robot_input[i].GetBase2Robot();
     pose_pair.world_to_camera_ = cam_->FindChessboardPose(src[i], 
         board_size_, square_size_, is_board_reverse);
 
@@ -42,7 +42,7 @@ void HandEyeCalibrator::GenerateBaseToWorld(std::vector<RobotPose> robot_input,
   std::vector<cv::Mat> base_points;
   cv::Mat base_point, diff, world_point, rMat, tvec;
   double rotate_angle_base, rotate_angle_world;
-  double x_sum, y_sum, z_sum, rotate_sum, rotate_ave;
+  double rotate_sum, rotate_ave;
   for (int i = 0; i < robot_input.size(); ++i) {
     base_point = cv::Mat_<double>::ones(4, 1);
     base_point.at<double>(0, 0) = robot_input[i].x_;
@@ -123,18 +123,18 @@ double HandEyeCalibrator::Calibrate() {
   return min_error;
 }
 
-cv::Mat HandEyeCalibrator::ConvertRobotPose(RobotPose robot) {
-  cv::Mat base_to_robot, tvec, rmat;
-  cv::Vec<double,3> t(robot.x_, robot.y_, robot.z_);
-  rmat = Matrix::RotateX(-robot.sway_angle_) * 
-      Matrix::RotateZ(robot.rotate_angle_) * Matrix::RotateZ(90);
-
-  tvec = -rmat * cv::Mat(t).reshape(1, 3);
-  base_to_robot = cv::Mat_<double>::eye(4, 4);
-  rmat.copyTo(base_to_robot.rowRange(0, 3).colRange(0, 3));
-  tvec.copyTo(base_to_robot.rowRange(0, 3).col(3));
-  return base_to_robot;
- };
+//cv::Mat HandEyeCalibrator::ConvertRobotPose(RobotPose robot) {
+//  cv::Mat base_to_robot, tvec, rmat;
+//  cv::Vec<double,3> t(robot.x_, robot.y_, robot.z_);
+//  rmat = Matrix::RotateX(-robot.sway_angle_) * 
+//      Matrix::RotateZ(robot.rotate_angle_) * Matrix::RotateZ(90);
+//
+//  tvec = -rmat * cv::Mat(t).reshape(1, 3);
+//  base_to_robot = cv::Mat_<double>::eye(4, 4);
+//  rmat.copyTo(base_to_robot.rowRange(0, 3).colRange(0, 3));
+//  tvec.copyTo(base_to_robot.rowRange(0, 3).col(3));
+//  return base_to_robot;
+// };
 
 cv::Mat HandEyeCalibrator::SolveX(cv::Mat A1, cv::Mat B1,
     cv::Mat A2, cv::Mat B2) {

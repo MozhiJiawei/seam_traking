@@ -11,10 +11,14 @@ public:
   friend class HandEyeCalibrator;
   friend class LightplaneCalibrator;
 
-  cv::Point3d PixelToRobot(cv::Point2d pixel_point);
-  void LogToFile(const std::string &filename);
-  void InitFromFile(const std::string &filename);
-  void UndistorImage(cv::Mat& src, cv::Mat& dst);
+  cv::Point3d PixelToRobot(const cv::Point2d pixel_point);
+
+  // To be finished
+  cv::Point2d ImagePro(cv::Mat &src, cv::Point2d last_point);
+  // To be finished
+  void WriteToParam();
+  // To be finished
+  void InitFromParam();
 
 private:
   bool must_init_distort_;
@@ -28,6 +32,7 @@ private:
   // Set after handeye calibration
   cv::Mat camera_to_robot_;
 
+  void UndistorImage(cv::Mat& src, cv::Mat& dst);
   // Get pose: chessboard world --> camera
   cv::Mat FindChessboardPose(cv::Mat& src, cv::Size board_size,
     double square_size, bool is_board_reverse = false);
